@@ -2,7 +2,8 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const cli = require("nodemon/lib/cli");
 const port = process.env.PORT || 5000;
 
 app.use(cors());
@@ -18,6 +19,28 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
+    const productsCollection = client.db("tech-house").collection("products");
+    const reviewsCollection = client.db("tech-house").collection("reviews");
+    //***********************  Product related api *************
+    // get all products api --------------------------------------
+    app.get("/products", async (req, res) => {
+      const result = await productsCollection.find().toArray();
+      res.send(result);
+    });
+    // get filter product by Id ----------------------------------
+    app.get("/product/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await productsCollection.findOne(query);
+      res.send(result);
+    });
+
+    // ************************* Review related api *****************
+    // get all Reviews api ---------------------------------------
+    app.get("/reviews", async (req, res) => {
+      const result = await reviewsCollection.find().toArray();
+      res.send(result);
+    });
   } finally {
     // .
   }

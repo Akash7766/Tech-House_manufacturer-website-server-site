@@ -21,6 +21,7 @@ async function run() {
     await client.connect();
     const productsCollection = client.db("tech-house").collection("products");
     const reviewsCollection = client.db("tech-house").collection("reviews");
+    const OrdersCollection = client.db("tech-house").collection("orders");
     //***********************  Product related api *************
     // get all products api --------------------------------------
     app.get("/products", async (req, res) => {
@@ -32,6 +33,13 @@ async function run() {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await productsCollection.findOne(query);
+      res.send(result);
+    });
+
+    // order post api
+    app.post("/orders", async (req, res) => {
+      const order = req.body;
+      const result = await OrdersCollection.insertOne(order);
       res.send(result);
     });
 

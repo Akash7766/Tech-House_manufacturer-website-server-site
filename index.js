@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // connect with mongoDb atlas database
-const uri = `mongodb+srv://Akash:uWxTjmMzfgaXARaP@cluster0.g3r1l.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.g3r1l.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -56,7 +56,7 @@ async function run() {
     };
     //***********************  Product related api *************
     // get all products api --
-    app.get("/products", verifyJWT, async (req, res) => {
+    app.get("/products", async (req, res) => {
       const result = await productsCollection.find().toArray();
       res.send(result);
     });
@@ -188,7 +188,7 @@ run().catch(console.dir);
 
 // This is the root api
 app.get("/", (req, res) => {
-  res.send("Hello World Heroku!");
+  res.send("Hello World!");
 });
 
 // listening port

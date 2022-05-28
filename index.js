@@ -55,12 +55,12 @@ async function run() {
       }
     };
     //***********************  Product related api *************
-    // get all products api --------------------------------------
+    // get all products api --
     app.get("/products", verifyJWT, async (req, res) => {
       const result = await productsCollection.find().toArray();
       res.send(result);
     });
-    // get filter product by Id ----------------------------------
+    // get filter product by Id ----------------
     app.get("/product/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -68,19 +68,26 @@ async function run() {
       res.send(result);
     });
 
+    // add a new product by post api
+    app.post("/products", async (req, res) => {
+      const product = req.body;
+      const result = await productsCollection.insertOne(product);
+      res.send(result);
+    });
+
     // ************************** order related api *******************
-    // order post api -------------------------------------------
+    // order post api -------
     app.post("/orders", async (req, res) => {
       const order = req.body;
       const result = await OrdersCollection.insertOne(order);
       res.send(result);
     });
-    // -------------------- get all orders api --------------------
+    // -- get all orders api --
     app.get("/orders", async (req, res) => {
       const result = await OrdersCollection.find().toArray();
       res.send(result);
     });
-    // -------------------- get orders filtering by email --------------------
+    // -- get orders filtering by email
     app.get("/myorders", async (req, res) => {
       const email = req.query.email;
       const query = { email };
@@ -124,7 +131,7 @@ async function run() {
     });
 
     // ************************* Review related api *****************
-    // get all Reviews api ---------------------------------------
+    // get all Reviews api ---
     app.get("/reviews", async (req, res) => {
       const result = await reviewsCollection.find().toArray();
       res.send(result);

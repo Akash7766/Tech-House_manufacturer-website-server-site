@@ -56,7 +56,7 @@ async function run() {
     };
     //***********************  Product related api *************
     // get all products api --
-    app.get("/products", async (req, res) => {
+    app.get("/products", verifyJWT, async (req, res) => {
       const result = await productsCollection.find().toArray();
       res.send(result);
     });

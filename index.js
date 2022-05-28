@@ -43,9 +43,17 @@ async function run() {
       const result = await OrdersCollection.insertOne(order);
       res.send(result);
     });
-    // ************************* get all order api *************************
+    // ************************* Orders related api *************************
+    // -------------------- get all orders api --------------------
     app.get("/orders", async (req, res) => {
       const result = await OrdersCollection.find().toArray();
+      res.send(result);
+    });
+    // -------------------- get orders filtering by email --------------------
+    app.get("/myorders", async (req, res) => {
+      const email = req.query.email;
+      const query = { email };
+      const result = await OrdersCollection.find(query).toArray();
       res.send(result);
     });
 

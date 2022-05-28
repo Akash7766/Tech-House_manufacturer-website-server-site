@@ -36,10 +36,16 @@ async function run() {
       res.send(result);
     });
 
-    // order post api
+    // ************************** order related api *******************
+    // order post api -------------------------------------------
     app.post("/orders", async (req, res) => {
       const order = req.body;
       const result = await OrdersCollection.insertOne(order);
+      res.send(result);
+    });
+    // ************************* get all order api *************************
+    app.get("/orders", async (req, res) => {
+      const result = await OrdersCollection.find().toArray();
       res.send(result);
     });
 

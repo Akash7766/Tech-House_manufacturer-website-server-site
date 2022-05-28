@@ -104,6 +104,17 @@ async function run() {
       res.send(result);
     });
 
+    // delivery api
+    app.put("/deliver/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: { status: "delivered" },
+      };
+      const result = await OrdersCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
     // ************************** user api  **************************
     // upsert user information
     app.put("/user/:email", async (req, res) => {

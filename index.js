@@ -69,9 +69,17 @@ async function run() {
     });
 
     // add a new product by post api
-    app.post("/products", async (req, res) => {
+    app.post("/products", verifyJWT, verifyAdmin, async (req, res) => {
       const product = req.body;
       const result = await productsCollection.insertOne(product);
+      res.send(result);
+    });
+
+    // delete a single product api
+    app.delete("/product/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params;
+      const query = { _id: ObjectId(id) };
+      const result = await productsCollection.deleteOne(query);
       res.send(result);
     });
 
@@ -82,6 +90,7 @@ async function run() {
       const result = await OrdersCollection.insertOne(order);
       res.send(result);
     });
+
     // -- get all orders api --
     app.get("/orders", async (req, res) => {
       const result = await OrdersCollection.find().toArray();
@@ -135,6 +144,13 @@ async function run() {
     app.get("/reviews", async (req, res) => {
       const result = await reviewsCollection.find().toArray();
       res.send(result);
+
+      // post a single review
+      app.post("/review", async (req, res) => {
+        const order = req.body;
+        const result = await reviewsCollection.insertOne(order);
+        res.send(result);
+      });
     });
   } finally {
     // .

@@ -155,6 +155,7 @@ async function run() {
       const result = await usersCollection.find().toArray();
       res.send(result);
     });
+
     // make admin api
     app.put("/admin/:email", verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;

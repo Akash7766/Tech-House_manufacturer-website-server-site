@@ -41,6 +41,19 @@ async function run() {
     const reviewsCollection = client.db("tech-house").collection("reviews");
     const OrdersCollection = client.db("tech-house").collection("orders");
     const usersCollection = client.db("tech-house").collection("users");
+
+    // verify admin
+    const verifyAdmin = async (req, res, next) => {
+      const requesterEmail = req.decoded.email;
+      const requester = await usersCollection.findOne({
+        email: requesterEmail,
+      });
+      if (requester.role === "admin") {
+        next();
+      } else {
+        return res.status(403).send({ message: "Access forbiden" });
+      }
+    };
     //***********************  Product related api *************
     // get all products api --------------------------------------
     app.get("/products", verifyJWT, async (req, res) => {
@@ -62,7 +75,6 @@ async function run() {
       const result = await OrdersCollection.insertOne(order);
       res.send(result);
     });
-    // ************************* Orders related api *************************
     // -------------------- get all orders api --------------------
     app.get("/orders", async (req, res) => {
       const result = await OrdersCollection.find().toArray();
@@ -95,6 +107,20 @@ async function run() {
         expiresIn: "1d",
       });
       res.send({ result, token });
+    });
+    app.get("/users", async (req, res) => {
+      const result = await usersCollection.find().toArray();
+      res.send(result);
+    });
+    // make admin api
+    app.put("/admin/:email", verifyJWT, verifyAdmin, async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const updateDoc = {
+        $set: { role: "admin" },
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result);
     });
 
     // ************************* Review related api *****************

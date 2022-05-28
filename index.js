@@ -104,6 +104,22 @@ async function run() {
       res.send(result);
     });
 
+    // delete order api
+    app.delete("/order/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await OrdersCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // delete customer order by him self
+    app.delete("/myorder/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await OrdersCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // delivery api
     app.put("/deliver/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;

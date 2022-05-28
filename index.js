@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
+var jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cli = require("nodemon/lib/cli");
 const port = process.env.PORT || 5000;
@@ -16,15 +17,33 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
+
+// verify jwt
+function verifyJWT(req, res, next) {
+  const authHeader = req.headers.authoraization;
+  if (!authHeader) {
+    return res.status(401).send({ message: "UnAuthoraze access" });
+  }
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.secret, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({ message: "Auth forbiden" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
+
 async function run() {
   try {
     await client.connect();
     const productsCollection = client.db("tech-house").collection("products");
     const reviewsCollection = client.db("tech-house").collection("reviews");
     const OrdersCollection = client.db("tech-house").collection("orders");
+    const usersCollection = client.db("tech-house").collection("users");
     //***********************  Product related api *************
     // get all products api --------------------------------------
-    app.get("/products", async (req, res) => {
+    app.get("/products", verifyJWT, async (req, res) => {
       const result = await productsCollection.find().toArray();
       res.send(result);
     });
@@ -55,6 +74,27 @@ async function run() {
       const query = { email };
       const result = await OrdersCollection.find(query).toArray();
       res.send(result);
+    });
+
+    // ************************** user api  **************************
+    // upsert user information
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      const token = jwt.sign({ email: email }, process.env.SECRET, {
+        expiresIn: "1d",
+      });
+      res.send({ result, token });
     });
 
     // ************************* Review related api *****************

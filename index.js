@@ -25,7 +25,7 @@ function verifyJWT(req, res, next) {
     return res.status(401).send({ message: "UnAuthoraze access" });
   }
   const token = authHeader.split(" ")[1];
-  jwt.verify(token, process.env.secret, function (err, decoded) {
+  jwt.verify(token, process.env.SECRET, function (err, decoded) {
     if (err) {
       return res.status(403).send({ message: "Auth forbiden" });
     }
@@ -48,6 +48,7 @@ async function run() {
       const requester = await usersCollection.findOne({
         email: requesterEmail,
       });
+      console.log(requester);
       if (requester.role === "admin") {
         next();
       } else {
